@@ -1,6 +1,5 @@
 @startuml
 !includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-title Банк • Диаграмма контейнеров (депозиты & кредиты)
 
 Person(customer, "Клиент")
 
@@ -26,9 +25,9 @@ System_Ext(externalCallCenterSystem, "Партнерская система ко
 
 System_Boundary(frontOffice, "Фронт-офис") {
     Person(officeSpecialist, "Специалист отделения")
-    Person(callCenterSpecialist, "Сотрудник контакт-центра")
+    Person(callCenterSpecialist, "Сотрудник колл-центра")
 }
-Person(externalCallCenterSpecialist, "Сотрудник партнерского контакт-центра")
+Person(externalCallCenterSpecialist, "Сотрудник партнерского колл-центра")
 
 
 Rel(customer, landing, "Получает маркетинговую информацией")
@@ -64,6 +63,5 @@ Rel_U(itSpecialist, smsGateway, "Разрабатывает")
 Rel(abs, smsGateway, "Отправляет уведомления")
 Rel(smsGateway, carrier, "Отправляет уведомления")
 Rel(carrier, customer, "Отправляет уведомления")
-
 
 @enduml

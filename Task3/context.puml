@@ -1,0 +1,39 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/refs/heads/master/C4_Container.puml
+
+Person(newCustomer, "Новый клиент")
+Person(existingCustomer, "Текущий клиент")
+Person(depositSpecialist, "Специалист депозитного отдела")
+Person(officeSpecialist, "Специалист отделения")
+Person(callCenterSpecialist, "Сотрудник колл-центра")
+
+Container(depositServices, "Депозитные микросервисы")
+Container(abs, "АБС")
+Container(landing, "Сайт")
+Container(internetBank, "Интернет-банк")
+Container(callCenterSystem, "Внутренняя система колл-центра")
+Container(smsGateway, "СМС-шлюз")
+
+System_Ext(carrier, "Оператор связи")
+
+Rel(newCustomer, landing, "Открывает заявки на депозит")
+Rel(existingCustomer, internetBank, "Открывает заявки на депозит")
+Rel(callCenterSpecialist, newCustomer, "Связывается")
+
+Rel(internetBank, depositServices, "Обменивается данными")
+Rel(landing, depositServices, "Обменивается данными")
+
+Rel(depositServices, abs, "Обменивается данными")
+
+Rel(officeSpecialist, abs, "Подтверждает клиента")
+
+Rel(depositSpecialist, abs, "Обрабатывает заявки")
+
+Rel(callCenterSpecialist, callCenterSystem, "Взаимодействует")
+Rel(callCenterSystem, depositServices, "Передает данные")
+
+Rel(abs, smsGateway, "Отправляет уведомления")
+Rel(smsGateway, carrier, "Отправляет уведомления")
+Rel(carrier, newCustomer, "Отправляет уведомления")
+Rel(carrier, existingCustomer, "Отправляет уведомления")
+@enduml
