@@ -1,0 +1,40 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/refs/heads/master/C4_Container.puml
+
+Person(newCustomer, "Новый клиент")
+Person(existingCustomer, "Текущий клиент")
+Person(creditSpecialist, "Специалист кредитного отдела")
+Person(officeSpecialist, "Специалист отделения")
+
+Container(creditServices, "Кредитные микросервисы")
+Container(abs, "АБС")
+Container(scoringSystem, "Скоринговая система")
+Container(creditConveyor, "Кредитный конвеер")
+Container(landing, "Сайт")
+Container(internetBank, "Интернет-банк")
+Container(smsGateway, "СМС-шлюз")
+
+System_Ext(carrier, "Оператор связи")
+System_Ext(bki, "Бюро кредитных историй")
+
+Rel(newCustomer, landing, "Открывает заявки на кредит")
+Rel(existingCustomer, internetBank, "Открывает заявки на кредит")
+
+Rel(internetBank, creditServices, "Обменивается данными")
+Rel(landing, creditServices, "Обменивается данными")
+
+Rel(creditServices, abs, "Обменивается данными")
+
+Rel(officeSpecialist, abs, "Подтверждает клиента")
+
+Rel(creditSpecialist, creditConveyor, "Обрабатывает заявки")
+Rel(creditServices, creditConveyor, "Получает данные о заявках")
+
+Rel(creditServices, scoringSystem, "Запрашивает кредитный рейтинг")
+Rel(scoringSystem, bki, "Запрашивает кредитный рейтинг")
+
+Rel(abs, smsGateway, "Отправляет уведомления")
+Rel(smsGateway, carrier, "Отправляет уведомления")
+Rel(carrier, newCustomer, "Отправляет уведомления")
+Rel(carrier, existingCustomer, "Отправляет уведомления")
+@enduml

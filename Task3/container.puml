@@ -1,0 +1,62 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/refs/heads/master/C4_Container.puml
+
+Person(newCustomer, "Новый клиент")
+Person(existingCustomer, "Текущий клиент")
+Person(depositSpecialist, "Специалист депозитного отдела")
+Person(officeSpecialist, "Специалист отделения")
+Person(callCenterSpecialist, "Сотрудник колл-центра")
+
+System_Boundary(bankInfra, "IT-инфраструктура банка") {
+    System_Boundary(depositServices, "Депозитные микросервисы") {
+        Container(apiGateway, "API Gateway", "ASP.NET", "Маршрутизация запросов")
+        Container(absAdapterService, "Сервис-адаптер для работы с АБС",  "ASP.NET", "Адаптер для работы с АБС")
+        Container(depositService, "Сервис депозитов", "ASP.NET", "Работа с заявками на депозиты")
+        Container(depositRatesService, "Сервис депозитных ставок", "ASP.NET", "Расчет ставок для клиентов")
+
+        ContainerDb(depositDatabase, "БД депозитов", "PostgreSQL")
+        ContainerDb(depositRatesDatabase, "БД ставок по депозитам", "PostgreSQL")
+
+        ContainerQueue(messageBroker, "Message broker", "Kafka")
+    }
+
+    System(abs, "АБС")
+    Container(landing, "Сайт", "React.js")
+    Container(internetBank, "Интернет-банк", "ASP.NET")
+    System(callCenterSystem, "Внутренняя система колл-центра")
+    Container(smsGateway, "СМС-шлюз")
+}
+
+System_Ext(carrier, "Оператор связи")
+
+Rel(newCustomer, landing, "Открывает заявки на депозит")
+Rel(existingCustomer, internetBank, "Открывает заявки на депозит")
+Rel(callCenterSpecialist, newCustomer, "Связывается")
+
+Rel(internetBank, apiGateway, "Обменивается данными")
+Rel(landing, apiGateway, "Обменивается данными")
+
+Rel(apiGateway, depositService, "Передает данные о депозитах", "REST API")
+Rel(apiGateway, depositRatesService, "Передает данные о ставках", "REST API")
+
+Rel(depositService, depositDatabase, "Данные о депозитах", "SQL")
+
+Rel(depositRatesService, depositRatesDatabase, "Данные о ставках", "SQL")
+
+Rel(absAdapterService, abs, "Запрашивает данные о заявках", "REST API")
+Rel_U(absAdapterService, messageBroker, "Обмен событиями", "Kafka")
+Rel(depositService, messageBroker, "Обмен событиями", "Kafka")
+Rel(depositRatesService, messageBroker, "Обмен событиями", "Kafka")
+
+Rel(officeSpecialist, abs, "Подтверждает клиента")
+
+Rel(depositSpecialist, abs, "Обрабатывает заявки")
+
+Rel(callCenterSpecialist, callCenterSystem, "Взаимодействует")
+Rel(callCenterSystem, abs, "Передает данные")
+
+Rel(abs, smsGateway, "Отправляет уведомления")
+Rel(smsGateway, carrier, "Отправляет уведомления")
+Rel(carrier, newCustomer, "Отправляет уведомления")
+Rel(carrier, existingCustomer, "Отправляет уведомления")
+@enduml

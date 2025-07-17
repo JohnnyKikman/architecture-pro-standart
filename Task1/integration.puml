@@ -1,0 +1,67 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(customer, "Клиент")
+
+System_Boundary(backOffice, "Бэк-офис") {
+    Person(depositSpecialist, "Специалист депозитного отдела")
+    Person(creditSpecialist, "Специалист кредитного отдела")
+}
+
+Person(itSpecialist, "Специалист управления IT")
+
+System_Boundary(bankInfra, "IT-инфраструктура банка") {
+    Container(abs, "АБС")
+    Container(landing, "Сайт")
+    Container(internetBank, "Интернет-банк")
+    Container(callCenterSystem, "Внутренняя система колл-центра")
+    Container(smsGateway, "СМС-шлюз")
+    Container(creditConveyor, "Кредитный конвейер")
+    Container(scoring, "Скоринговая система")
+}
+System_Ext(bki, "Бюро кредитных историй")
+System_Ext(carrier, "Оператор связи")
+System_Ext(externalCallCenterSystem, "Партнерская система колл-центра")
+
+System_Boundary(frontOffice, "Фронт-офис") {
+    Person(officeSpecialist, "Специалист отделения")
+    Person(callCenterSpecialist, "Сотрудник колл-центра")
+}
+Person(externalCallCenterSpecialist, "Сотрудник партнерского колл-центра")
+
+
+Rel(customer, landing, "Получает маркетинговую информацией")
+Rel(customer, internetBank, "Открывает счета/проводит платежи")
+Rel(customer, callCenterSpecialist, "Связывается")
+Rel(customer, externalCallCenterSpecialist, "Связывается")
+
+Rel(internetBank, abs, "Обменивается данными")
+
+Rel(officeSpecialist, abs, "Взаимодействует")
+
+Rel(depositSpecialist, abs, "Взаимодействует по депозитным продуктам")
+
+Rel(creditSpecialist, creditConveyor, "Обрабатывает кредитные заявки")
+Rel(abs, creditConveyor, "Создает заявки на кредит")
+Rel(creditConveyor, scoring, "Запрашивает кредитный рейтинг")
+Rel(abs, scoring, "Обменивается данными")
+Rel(scoring, abs, "Передает кредитный рейтинг")
+Rel(scoring, bki, "Запрашивает информацию о клиенте")
+
+Rel(callCenterSpecialist, callCenterSystem, "Взаимодействует")
+Rel(callCenterSystem, abs, "Передает данные")
+Rel(externalCallCenterSpecialist, externalCallCenterSystem, "Взаимодействует")
+Rel(externalCallCenterSystem, abs, "Передает данные")
+
+Rel_U(itSpecialist, abs, "Разрабатывает")
+Rel_U(itSpecialist, landing, "Разрабатывает")
+Rel_U(itSpecialist, internetBank, "Разрабатывает")
+Rel_U(itSpecialist, callCenterSystem, "Дорабатывает")
+Rel_U(itSpecialist, creditConveyor, "Разрабатывает")
+Rel_U(itSpecialist, smsGateway, "Разрабатывает")
+
+Rel(abs, smsGateway, "Отправляет уведомления")
+Rel(smsGateway, carrier, "Отправляет уведомления")
+Rel(carrier, customer, "Отправляет уведомления")
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/refs/heads/master/C4_Container.puml
+
+Person(newCustomer, "Новый клиент")
+Person(existingCustomer, "Текущий клиент")
+Person(creditSpecialist, "Специалист кредитного отдела")
+Person(officeSpecialist, "Специалист отделения")
+
+System_Boundary(bankInfra, "IT-инфраструктура банка") {
+    System_Boundary(creditServices, "Кредитные микросервисы") {
+        Container(apiGateway, "API Gateway", "ASP.NET", "Маршрутизация запросов")
+        Container(creditService, "Сервис кредитов", "ASP.NET", "Работа с заявками на кредиты")
+        Container(creditRatesService, "Сервис кредитных ставок", "ASP.NET", "Предрасчет ставок для клиентов")
+
+        ContainerDb(creditDatabase, "БД кредитов", "PostgreSQL")
+        ContainerDb(creditRatesDatabase, "БД расчитанных ставок", "PostgreSQL")
+
+        ContainerQueue(messageBroker, "Message broker", "Kafka")
+    }
+
+    Container(abs, "АБС")
+    Container(scoringSystem, "Скоринговая система")
+    Container(creditConveyor, "Кредитный конвеер")
+    Container(landing, "Сайт")
+    Container(internetBank, "Интернет-банк")
+    Container(smsGateway, "СМС-шлюз")
+}
+
+System_Ext(carrier, "Оператор связи")
+System_Ext(bki, "Бюро кредитных историй")
+
+Rel(newCustomer, landing, "Открывает заявки на кредит")
+Rel(existingCustomer, internetBank, "Открывает заявки на кредит")
+
+Rel(internetBank, apiGateway, "Обменивается данными")
+Rel(landing, apiGateway, "Обменивается данными")
+
+Rel(apiGateway, creditService, "Передает данные о кредитах", "REST API")
+Rel(apiGateway, creditRatesService, "Передает данные о ставках", "REST API")
+
+Rel(creditService, creditDatabase, "Данные о кредитах", "SQL")
+
+Rel(creditRatesService, creditRatesDatabase, "Данные о ставках", "SQL")
+
+Rel(creditRatesService, abs, "Запрашивает данные о клиентах", "REST API")
+Rel(creditService, messageBroker, "Обмен событиями", "Kafka")
+Rel(creditRatesService, messageBroker, "Обмен событиями", "Kafka")
+
+Rel(abs, creditConveyor, "Выгружает заявки по расписанию")
+
+Rel(officeSpecialist, abs, "Подтверждает клиента")
+
+Rel(creditSpecialist, creditConveyor, "Обрабатывает заявки")
+Rel(creditService, creditConveyor, "Получает данные о заявках", "REST API")
+
+Rel(creditRatesService, scoringSystem, "Запрашивает кредитный рейтинг", "REST API")
+Rel(scoringSystem, bki, "Запрашивает кредитный рейтинг", "REST API")
+
+Rel(creditRatesService, creditConveyor, "Получает данные о ставках", "REST API")
+
+Rel(abs, smsGateway, "Отправляет уведомления")
+Rel(smsGateway, carrier, "Отправляет уведомления")
+Rel(carrier, newCustomer, "Отправляет уведомления")
+Rel(carrier, existingCustomer, "Отправляет уведомления")
+@enduml
